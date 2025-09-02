@@ -16,12 +16,16 @@
     <description>Parent POM for IKE projects with clean separation of concerns; versions come from ike-bom.</description>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>25</java.version>
         <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
+        <maven-failsafe-plugin.version>3.5.3</maven-failsafe-plugin.version>
+        <maven-plugin-plugin.version>3.15.0</maven-plugin-plugin.version>
+        <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
-        <maven-plugin-plugin.version>3.15.0</maven-plugin-plugin.version>
+        <!-- default (no classifier) to avoid unresolved placeholders -->
+        <platform.classifier></platform.classifier>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <dependencyManagement>
@@ -37,6 +41,14 @@
     </dependencyManagement>
 
     <build>
+        <!-- Detect OS/arch early via build extension -->
+        <extensions>
+            <extension>
+                <groupId>kr.motd.maven</groupId>
+                <artifactId>os-maven-plugin</artifactId>
+                <version>1.7.1</version>
+            </extension>
+        </extensions>
         <pluginManagement>
             <plugins>
                 <!-- Define shared plugin versions/config here; no direct dependencies -->
@@ -46,17 +58,116 @@
                     <version>${maven-compiler-plugin.version}</version>
                     <configuration>
                         <release>${java.version}</release>
+                        <useModulePath>false</useModulePath>
                         <compilerArgs>
                             <arg>--enable-preview</arg>
                         </compilerArgs>
                     </configuration>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.ow2.asm</groupId>
+                            <artifactId>asm</artifactId>
+                            <version>9.8</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.ow2.asm</groupId>
+                            <artifactId>asm-commons</artifactId>
+                            <version>9.8</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.ow2.asm</groupId>
+                            <artifactId>asm-tree</artifactId>
+                            <version>9.8</version>
+                        </dependency>
+                    </dependencies>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-plugin-plugin</artifactId>
                     <version>${maven-plugin-plugin.version}</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${maven-surefire-plugin.version}</version>
+                    <configuration>
+                        <!-- Pass preview flag to the forked JVM -->
+                        <argLine>--enable-preview --enable-native-access=dev.ikm.rocksdb.jpms</argLine>
+                        <!-- Keep consistent with compilation to avoid module path surprises -->
+                        <useModulePath>false</useModulePath>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <version>${maven-failsafe-plugin.version}</version>
+                    <configuration>
+                        <argLine>--enable-preview --enable-native-access=dev.ikm.rocksdb.jpms</argLine>
+                        <useModulePath>false</useModulePath>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
-    </build>
+        <plugins>
+            <!-- Ensure tests run with native access enabled -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven-surefire-plugin.version}</version>
+                <configuration>
+                    <argLine>--enable-preview --enable-native-access=dev.ikm.rocksdb.jpms</argLine>
+                    <useModulePath>false</useModulePath>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${maven-failsafe-plugin.version}</version>
+                <configuration>
+                    <argLine>--enable-preview --enable-native-access=dev.ikm.rocksdb.jpms</argLine>
+                    <useModulePath>false</useModulePath>
+                </configuration>
+            </plugin>
+        </plugins>
+   </build>
+    <!-- Map detected OS/arch to native platform classifier -->
+    <profiles>
+        <profile>
+            <id>osx-platform</id>
+            <activation>
+                <property>
+                    <name>os.detected.name</name>
+                    <value>osx</value>
+                </property>
+            </activation>
+            <properties>
+                <platform.classifier>osx</platform.classifier>
+            </properties>
+        </profile>
+        <profile>
+            <id>platform-linux</id>
+            <activation>
+                <property>
+                    <name>os.detected.name</name>
+                    <value>linux</value>
+                </property>
+            </activation>
+            <properties>
+                <platform.classifier>linux64</platform.classifier>
+            </properties>
+        </profile>
+        <profile>
+            <id>rocksdb-windows-x64</id>
+            <activation>
+                <property>
+                    <name>os.detected.name</name>
+                    <value>windows</value>
+                </property>
+            </activation>
+            <properties>
+                <platform.classifier>win64</platform.classifier>
+            </properties>
+        </profile>
+    </profiles>
+
 </project>

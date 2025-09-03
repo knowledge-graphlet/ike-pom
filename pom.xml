@@ -42,13 +42,7 @@
 
     <build>
         <!-- Detect OS/arch early via build extension -->
-        <extensions>
-            <extension>
-                <groupId>kr.motd.maven</groupId>
-                <artifactId>os-maven-plugin</artifactId>
-                <version>1.7.1</version>
-            </extension>
-        </extensions>
+        <!-- Removed os-maven-plugin extension due to Maven 4 incompatibility -->
         <pluginManagement>
             <plugins>
                 <!-- Define shared plugin versions/config here; no direct dependencies -->
@@ -135,10 +129,9 @@
         <profile>
             <id>osx-platform</id>
             <activation>
-                <property>
-                    <name>os.detected.name</name>
-                    <value>osx</value>
-                </property>
+                <os>
+                    <family>mac</family>
+                </os>
             </activation>
             <properties>
                 <platform.classifier>osx</platform.classifier>
@@ -147,10 +140,10 @@
         <profile>
             <id>platform-linux</id>
             <activation>
-                <property>
-                    <name>os.detected.name</name>
-                    <value>linux</value>
-                </property>
+                <os>
+                    <family>unix</family>
+                    <name>Linux</name>
+                </os>
             </activation>
             <properties>
                 <platform.classifier>linux64</platform.classifier>
@@ -159,10 +152,9 @@
         <profile>
             <id>rocksdb-windows-x64</id>
             <activation>
-                <property>
-                    <name>os.detected.name</name>
-                    <value>windows</value>
-                </property>
+                <os>
+                    <family>windows</family>
+                </os>
             </activation>
             <properties>
                 <platform.classifier>win64</platform.classifier>

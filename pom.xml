@@ -46,13 +46,18 @@
         <pluginManagement>
             <plugins>
                 <!-- Define shared plugin versions/config here; no direct dependencies -->
+                <!-- Add executions to control module path per phase -->
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${maven-compiler-plugin.version}</version>
                     <configuration>
                         <release>${java.version}</release>
-                        <useModulePath>false</useModulePath>
+                        <useModulePath>true</useModulePath>
+
+                        <!-- Compile tests on the classpath so they can see junit without changing main module-info -->
+                        <testRelease>25</testRelease>
                         <compilerArgs>
                             <arg>--enable-preview</arg>
                         </compilerArgs>
@@ -104,6 +109,39 @@
         </pluginManagement>
         <plugins>
             <!-- Ensure tests run with native access enabled -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>default-compile</id>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <configuration>
+                            <release>${java.version}</release>
+                            <compilerArgs>
+                                <arg>--enable-preview</arg>
+                            </compilerArgs>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>default-testCompile</id>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
+                        <configuration>
+                            <release>${java.version}</release>
+                            <!-- Turn OFF module path for tests so JUnit 5 is visible -->
+                            <useModulePath>false</useModulePath>
+                            <compilerArgs>
+                                <arg>--enable-preview</arg>
+                            </compilerArgs>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>

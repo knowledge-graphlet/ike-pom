@@ -12,7 +12,7 @@
 
     <artifactId>ike-pom</artifactId>
     <packaging>pom</packaging>
-    <name>IKE Parent POM</name>
+    <name>IKE Parent POM ${project.version}</name>
     <description>Parent POM for IKE projects with clean separation of concerns; versions come from ike-bom.</description>
 
     <properties>

@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.1.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.1.0 https://maven.apache.org/xsd/maven-4.1.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xsi:schemaLocation="http://maven.apache.org/POM/4.1.0 https://maven.apache.org/xsd/maven-4.1.0.xsd">
     <modelVersion>4.1.0</modelVersion>
 
     <parent>
@@ -12,15 +10,17 @@
 
     <artifactId>ike-pom</artifactId>
     <packaging>pom</packaging>
+
     <name>IKE Parent POM</name>
     <description>Parent POM for IKE projects with clean separation of concerns; versions come from ike-bom.</description>
 
     <properties>
+        <asm.version>9.9</asm.version>
         <java.version>25</java.version>
         <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
-        <maven-failsafe-plugin.version>3.5.3</maven-failsafe-plugin.version>
+        <maven-failsafe-plugin.version>3.5.4</maven-failsafe-plugin.version>
         <maven-plugin-plugin.version>3.15.0</maven-plugin-plugin.version>
-        <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
+        <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <!-- default (no classifier) to avoid unresolved placeholders -->
@@ -40,8 +40,7 @@
         </dependencies>
     </dependencyManagement>
 
-    <build>
-        <!-- Detect OS/arch early via build extension -->
+    <build><!-- Detect OS/arch early via build extension -->
         <!-- Removed os-maven-plugin extension due to Maven 4 incompatibility -->
         <pluginManagement>
             <plugins>
@@ -66,17 +65,17 @@
                         <dependency>
                             <groupId>org.ow2.asm</groupId>
                             <artifactId>asm</artifactId>
-                            <version>9.8</version>
+                            <version>${asm.version}</version>
                         </dependency>
                         <dependency>
                             <groupId>org.ow2.asm</groupId>
                             <artifactId>asm-commons</artifactId>
-                            <version>9.8</version>
+                            <version>${asm.version}</version>
                         </dependency>
                         <dependency>
                             <groupId>org.ow2.asm</groupId>
                             <artifactId>asm-tree</artifactId>
-                            <version>9.8</version>
+                            <version>${asm.version}</version>
                         </dependency>
                     </dependencies>
                 </plugin>
@@ -162,6 +161,7 @@
             </plugin>
         </plugins>
    </build>
+
     <!-- Map detected OS/arch to native platform classifier -->
     <profiles>
         <profile>
@@ -199,5 +199,4 @@
             </properties>
         </profile>
     </profiles>
-
 </project>
